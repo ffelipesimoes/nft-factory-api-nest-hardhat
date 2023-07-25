@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ContractService } from './contract.service';
-
+import { NETWORK_EXPLORER_URLS } from './networks';
 export interface DeployedContractProps {
   address: string;
   url: string;
@@ -14,7 +14,7 @@ export class ContractController {
     @Body('network') network: string,
   ): Promise<DeployedContractProps> {
     const address = await this.contractService.deployContract(network);
-    const url = `https://mumbai.polygonscan.com/address/${address}`;
+    const url = `${NETWORK_EXPLORER_URLS[network]}/${address}`;
     return { address, url };
   }
 }
