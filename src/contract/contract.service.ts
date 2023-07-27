@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ethers } from 'hardhat';
 import { exec as execCb } from 'child_process';
 import { promisify } from 'util';
-import { NETWORK_URLS } from './networks';
+import { NETWORK_URLS } from '../networks';
 import { DeployContractDto } from './DeployContract.dto';
 
 const exec = promisify(execCb);

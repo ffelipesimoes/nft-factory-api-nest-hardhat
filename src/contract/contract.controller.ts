@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ContractService } from './contract.service';
-import { NETWORK_EXPLORER_URLS } from './networks';
+import { NETWORK_EXPLORER_URLS } from '../networks';
 import { DeployContractDto } from './DeployContract.dto';
 
 export interface DeployedContractProps {
