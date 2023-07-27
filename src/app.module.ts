@@ -7,10 +7,16 @@ import { IpfsService } from './ipfs/ipfs.service';
 import { IpfsController } from './ipfs/ipfs.controller';
 import { MintController } from './mint/mint.controller';
 import { MintService } from './mint/mint.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
-  imports: [],
-  controllers: [AppController, ContractController, IpfsController, MintController],
+  imports: [EventEmitterModule.forRoot()],
+  controllers: [
+    AppController,
+    ContractController,
+    IpfsController,
+    MintController,
+  ],
   providers: [AppService, ContractService, IpfsService, MintService],
 })
 export class AppModule {}
