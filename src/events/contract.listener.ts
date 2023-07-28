@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
 import { network, run } from 'hardhat';
-import { sleep } from 'src/utils';
+import { sleep } from '../utils';
 
 interface Iprops {
   networkName: string;
