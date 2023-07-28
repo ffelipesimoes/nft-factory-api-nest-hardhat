@@ -5,16 +5,26 @@ import { NFTStorage, File } from 'nft.storage';
 export class IpfsService {
   private readonly API_KEY = process.env.NFT_STORAGE_API_KEY;
 
-  async storeAsset(file: Express.Multer.File): Promise<string> {
+  async storeAsset(file: Express.Multer.File, metadata: any): Promise<string> {
     const client = new NFTStorage({ token: this.API_KEY });
-    const metadata = await client.store({
-      name: 'ExampleNFT',
-      description: 'My ExampleNFT is an awesome artwork!',
+    const metadataObj = JSON.parse(metadata);
+
+    const { name, description } = metadataObj;
+    console.log(metadataObj);
+    console.log(name);
+    console.log(description);
+    const metadataStored = await client.store({
+      name,
+      description,
       image: new File([file.buffer], file.originalname, {
         type: file.mimetype,
       }),
+      ...metadata, // This will add all other metadata fields to the stored metadata
     });
-    console.log('Metadata stored on Filecoin and IPFS with URL:', metadata.url);
-    return metadata.url;
+    console.log(
+      'Metadata stored on Filecoin and IPFS with URL:',
+      metadataStored.url,
+    );
+    return metadataStored.url;
   }
 }

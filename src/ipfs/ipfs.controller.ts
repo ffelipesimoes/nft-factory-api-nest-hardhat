@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Post,
   UploadedFile,
@@ -13,7 +14,10 @@ export class IpfsController {
 
   @Post('asset')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<string> {
-    return this.ipfsService.storeAsset(file);
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('metadata') metadata: any,
+  ): Promise<string> {
+    return this.ipfsService.storeAsset(file, metadata);
   }
 }
