@@ -45,8 +45,12 @@ export class MintService {
     console.log(receipt);
     this.logger.debug('NFT minted to:', tokenReceiver);
     const res = {
-      owner: tokenReceiver,
-      receipt,
+      Receiver: tokenReceiver,
+      BlockNumber: receipt.blockNumber,
+      Tx: receipt.transactionHash,
+      Contract: contractAddress,
+      Network: network,
+      metaDataURL,
     };
     return res;
   }
