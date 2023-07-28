@@ -10,7 +10,6 @@ const PRIVATE_KEY: string = process.env.PRIVATE_KEY as string;
 
 const config: HardhatUserConfig = {
   networks: {
-    hardhat: {},
     polygonMumbai: {
       url: 'https://rpc-mumbai.maticvigil.com',
       accounts: [PRIVATE_KEY],

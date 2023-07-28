@@ -8,6 +8,7 @@ import { IpfsController } from './ipfs/ipfs.controller';
 import { MintController } from './mint/mint.controller';
 import { MintService } from './mint/mint.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { VerifyContractHandler } from './contract/contract.listener';
 
 @Module({
   imports: [EventEmitterModule.forRoot()],
@@ -17,6 +18,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     IpfsController,
     MintController,
   ],
-  providers: [AppService, ContractService, IpfsService, MintService],
+  providers: [
+    AppService,
+    ContractService,
+    IpfsService,
+    MintService,
+    VerifyContractHandler,
+  ],
 })
 export class AppModule {}

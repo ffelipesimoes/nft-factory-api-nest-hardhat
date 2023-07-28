@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { exec as execCb } from 'child_process';
-import { promisify } from 'util';
-
-const sleep = (time: number) =>
-  new Promise((resolve) => setTimeout(resolve, time));
+import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter';
+import { network, run } from 'hardhat';
+import { sleep } from 'src/utils';
 
 interface Iprops {
   networkName: string;
@@ -13,30 +10,46 @@ interface Iprops {
   tokenSymbol: string;
 }
 
-const exec = promisify(execCb);
-
 @Injectable()
 export class VerifyContractHandler {
   private readonly logger: Logger;
 
-  constructor() {
+  constructor(private eventEmitter: EventEmitter2) {
     this.logger = new Logger(VerifyContractHandler.name);
   }
 
   @OnEvent('verifyContract')
-  async handle(props: Iprops): Promise<void> {
-    this.logger.log(`event verifyContract received | ${JSON.stringify(props)}`);
+  async handle(props: Iprops): Promise<string> {
     const { contractAddress, networkName, tokenName, tokenSymbol } = props;
+    network.name = networkName;
+
+    this.logger.log(`event verifyContract received | ${JSON.stringify(props)}`);
+    this.logger.debug('STARTING CONTRACT VERIFICATION');
+
     await sleep(30000);
+
     try {
-      const stdout = await exec(
-        `npx hardhat verify --network ${networkName} ${contractAddress} ${tokenName} ${tokenSymbol}`,
+      if (process.env.ETHERSCAN_API_KEY) {
+        await run('verify:verify', {
+          address: contractAddress,
+          constructorArguments: [tokenName, tokenSymbol],
+        });
+        this.logger.log('Contract verified');
+      }
+      this.logger.debug(
+        `CONTRACT  ${contractAddress} VERIFICATED on ${networkName}`,
       );
-      this.logger.log('stdout: ', stdout);
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error(JSON.stringify(error));
+    } catch (e) {
+      if (e instanceof Error) {
+        if (e.message.toLowerCase().includes('already verified')) {
+          this.logger.log('Contract Already verified!');
+        } else {
+          this.logger.error(e.message);
+        }
+      } else {
+        this.logger.error(e);
+      }
     }
-    this.logger.log('CONTRACT VERIFICATED');
+    return `CONTRACT  ${contractAddress} VERIFICATED on ${networkName}`;
   }
 }

@@ -11,6 +11,8 @@ export class ContractService {
   constructor(private eventEmitter: EventEmitter2) {}
 
   async deployContract(props: DeployContractDto): Promise<string> {
+    const { networkName, tokenName, tokenSymbol } = props;
+
     this.logger.verbose('STARTING CONTRACT CREATION');
 
     const networkUrl = NETWORK_URLS[props.networkName];
@@ -37,29 +39,13 @@ export class ContractService {
     const contractAddress = nftFactory.address;
     this.logger.verbose('CONTRACT CREATION FINISHED');
     this.logger.debug('Contract deployed to address:', contractAddress);
-    this.logger.verbose('STARTING CONTRACT VERIFICATION');
 
-    const { networkName, tokenName, tokenSymbol } = props;
     this.eventEmitter.emit('verifyContract', {
       networkName,
       contractAddress,
       tokenName,
       tokenSymbol,
     });
-
-    // await new Promise((resolve) => setTimeout(resolve, 30000));
-
-    // try {
-    //   const stdout = await exec(
-    //     `npx hardhat verify --network ${props.networkName} ${contractAddress} ${props.tokenName} ${props.tokenSymbol}`,
-    //   );
-    //   this.logger.debug('stdout: ', stdout);
-    // } catch (error) {
-    //   this.logger.error('Failed to verify contract:', error);
-    //   throw error;
-    // }
-
-    // this.logger.verbose('CONTRACT VERIFICATED');
 
     return contractAddress;
   }
