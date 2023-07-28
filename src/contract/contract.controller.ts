@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ContractService } from './contract.service';
-import { NETWORK_EXPLORER_URLS } from '../networks';
+import { CONTRACT_ADRRESS_EXPLORER_URLS } from '../networks';
 import { DeployContractDto } from './DeployContract.dto';
 
 export interface DeployedContractProps {
@@ -19,7 +19,7 @@ export class ContractController {
       deployContractDto,
     );
     const url = `${
-      NETWORK_EXPLORER_URLS[deployContractDto.networkName]
+      CONTRACT_ADRRESS_EXPLORER_URLS[deployContractDto.networkName]
     }/${address}`;
     return { address, url };
   }

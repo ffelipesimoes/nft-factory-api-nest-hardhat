@@ -19,7 +19,7 @@ export class IpfsService {
       image: new File([file.buffer], file.originalname, {
         type: file.mimetype,
       }),
-      ...metadata, // This will add all other metadata fields to the stored metadata
+      ...metadata,
     });
     console.log(
       'Metadata stored on Filecoin and IPFS with URL:',

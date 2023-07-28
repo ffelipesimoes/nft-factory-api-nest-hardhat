@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ethers } from 'hardhat';
-import { Logger } from 'ethers/lib/utils';
-import { NETWORK_URLS } from '../networks';
+import { NETWORK_URLS, TRANSACTION_EXPLORER_URLS } from '../networks';
 
 @Injectable()
 export class MintService {
@@ -13,10 +12,13 @@ export class MintService {
     metaDataURL: string,
     tokenReceiver: string,
   ): Promise<any> {
+    this.logger.verbose('STARTING MINTING SERVICE');
+
     const networkUrl = NETWORK_URLS[network];
     if (!networkUrl) {
       throw new Error(`Unsupported network: ${network}`);
     }
+    this.logger.debug('Network selected:', network);
 
     const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
@@ -27,31 +29,25 @@ export class MintService {
     const wallet = new ethers.Wallet(privateKey, provider);
 
     const NFTFactory = await ethers.getContractFactory('NFTFactory', wallet);
+    this.logger.log(`Attaching contract... ${contractAddress}`);
+
     const nftFactory = NFTFactory.attach(contractAddress);
 
-    // const data = await nftFactory
-    //   .mintNFT(tokenReceiver, metaDataURL, {
-    //     from: wallet.address,
-    //   })
-    //   .encodeAbi();
-    // const gas = provider.estimateGas({
-    //   to: nftFactory.address,
-    //   data,
-    //   from: wallet.address,
-    // });
-    const tx = await nftFactory.mintNFT(tokenReceiver, metaDataURL);
+    const mint = await nftFactory.mintNFT(tokenReceiver, metaDataURL);
+    this.logger.log(`Minting NFT on: ${contractAddress}`);
 
-    const receipt = await tx.wait();
-    console.log(receipt);
+    const receipt = await mint.wait();
     this.logger.debug('NFT minted to:', tokenReceiver);
     const res = {
       Receiver: tokenReceiver,
       BlockNumber: receipt.blockNumber,
-      Tx: receipt.transactionHash,
+      Tx: `${TRANSACTION_EXPLORER_URLS[network]}/${receipt.transactionHash}`,
       Contract: contractAddress,
       Network: network,
       metaDataURL,
     };
+    this.logger.debug(res);
+
     return res;
   }
 }

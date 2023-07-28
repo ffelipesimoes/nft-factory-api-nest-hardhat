@@ -21,7 +21,6 @@ export class MintController {
       mintServiceDto.metaDataURL,
       mintServiceDto.tokenReceiver,
     );
-    console.log(mintServiceDto);
 
     return response;
   }
