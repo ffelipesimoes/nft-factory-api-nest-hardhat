@@ -9,7 +9,7 @@ export class IpfsService {
     const client = new NFTStorage({ token: this.API_KEY });
     const metadataObj = JSON.parse(metadata);
 
-    const { name, description } = metadataObj;
+    const { name, description, attributes } = metadataObj;
     console.log(metadataObj);
     console.log(name);
     console.log(description);
@@ -19,7 +19,8 @@ export class IpfsService {
       image: new File([file.buffer], file.originalname, {
         type: file.mimetype,
       }),
-      ...metadata,
+      attributes,
+      ...metadataObj,
     });
     console.log(
       'Metadata stored on Filecoin and IPFS with URL:',
