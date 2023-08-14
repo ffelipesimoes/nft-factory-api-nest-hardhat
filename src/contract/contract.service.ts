@@ -4,13 +4,26 @@ import { NETWORK_URLS } from '../networks';
 import { DeployContractDto } from './DeployContract.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+export interface DeployedContractProps {
+  networkName: string;
+  contractAddress: string;
+  tokenName: string;
+  tokenSymbol: string;
+  contractOwner: string;
+  transactionHash: string;
+  blockHash: string;
+  blockNumber: number;
+}
+
 @Injectable()
 export class ContractService {
   private readonly logger = new Logger(ContractService.name);
 
   constructor(private eventEmitter: EventEmitter2) {}
 
-  async deployContract(props: DeployContractDto): Promise<string> {
+  async deployContract(
+    props: DeployContractDto,
+  ): Promise<DeployedContractProps> {
     const { networkName, tokenName, tokenSymbol } = props;
 
     this.logger.verbose('STARTING CONTRACT CREATION');
@@ -36,17 +49,33 @@ export class ContractService {
     );
     await nftFactory.deployed();
 
-    const contractAddress = nftFactory.address;
+    const transactionReceipt = await nftFactory.deployTransaction.wait();
+    const {
+      from: contractOwner,
+      contractAddress,
+      transactionHash,
+      blockHash,
+      blockNumber,
+    } = transactionReceipt;
+
     this.logger.verbose('CONTRACT CREATION FINISHED');
     this.logger.debug('Contract deployed to address:', contractAddress);
 
-    this.eventEmitter.emit('verifyContract', {
+    const response = {
       networkName,
       contractAddress,
       tokenName,
       tokenSymbol,
+      contractOwner,
+      transactionHash,
+      blockHash,
+      blockNumber,
+    };
+
+    this.eventEmitter.emit('verifyContract', {
+      response,
     });
 
-    return contractAddress;
+    return response;
   }
 }

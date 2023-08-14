@@ -1,10 +1,10 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { ContractService } from './contract.service';
+import { ContractService, DeployedContractProps } from './contract.service';
 import { CONTRACT_ADRRESS_EXPLORER_URLS } from '../networks';
 import { DeployContractDto } from './DeployContract.dto';
 
-export interface DeployedContractProps {
-  address: string;
+export interface DeployedContractControllerProps {
+  response: DeployedContractProps;
   url: string;
 }
 @Controller('contract')
@@ -14,13 +14,14 @@ export class ContractController {
   @Post('deploy')
   async deploy(
     @Body() deployContractDto: DeployContractDto,
-  ): Promise<DeployedContractProps> {
-    const address = await this.contractService.deployContract(
+  ): Promise<DeployedContractControllerProps> {
+    const response = await this.contractService.deployContract(
       deployContractDto,
     );
+
     const url = `${
       CONTRACT_ADRRESS_EXPLORER_URLS[deployContractDto.networkName]
-    }/${address}`;
-    return { address, url };
+    }/${response.contractAddress}`;
+    return { response, url };
   }
 }
