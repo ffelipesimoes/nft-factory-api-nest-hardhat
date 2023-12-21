@@ -1,14 +1,14 @@
 # Project Name
 
-Brief description of the project. (Insert a detailed description of your project here).
+This is a project to create a factory of NFT contracts.
 
 ## Installation
 
 To get started, clone the repository and install dependencies.
 
 ```bash
-git clone your-repository-url
-cd your-repository-directory
+git clone [your-repository-url](https://github.com/ffelipesimoes/nft-factory-api-nest-hardhat)
+cd nft-factory-api-nest-hardhat
 npm install
 
 ```
