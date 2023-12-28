@@ -1,19 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ethers } from 'hardhat';
-import { NETWORK_URLS } from '../networks';
-import { DeployContractDto } from './DeployContract.dto';
+import { CONTRACT_ADRRESS_EXPLORER_URLS, NETWORK_URLS } from '../networks';
+import { DeployContractDto } from './dto/deploy-contract-request.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-
-export interface DeployedContractProps {
-  networkName: string;
-  contractAddress: string;
-  tokenName: string;
-  tokenSymbol: string;
-  contractOwner: string;
-  transactionHash: string;
-  blockHash: string;
-  blockNumber: number;
-}
+import { DeployContractResponseDto } from './dto/deploy-contract-response.dto';
 
 @Injectable()
 export class ContractService {
@@ -22,17 +12,17 @@ export class ContractService {
   constructor(private eventEmitter: EventEmitter2) {}
 
   async deployContract(
-    props: DeployContractDto,
-  ): Promise<DeployedContractProps> {
-    const { networkName, tokenName, tokenSymbol } = props;
+    deployContractDto: DeployContractDto,
+  ): Promise<DeployContractResponseDto> {
+    const { networkName, tokenName, tokenSymbol } = deployContractDto;
 
     this.logger.verbose('STARTING CONTRACT CREATION');
 
-    const networkUrl = NETWORK_URLS[props.networkName];
+    const networkUrl = NETWORK_URLS[networkName];
     if (!networkUrl) {
-      throw new Error(`Unsupported network: ${props.networkName}`);
+      throw new Error(`Unsupported network: ${networkName}`);
     }
-    this.logger.debug('Network selected:', props.networkName);
+    this.logger.debug('Network selected:', networkName);
 
     const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
@@ -43,10 +33,7 @@ export class ContractService {
     const wallet = new ethers.Wallet(privateKey, provider);
 
     const NFTFactory = await ethers.getContractFactory('NFTFactory', wallet);
-    const nftFactory = await NFTFactory.deploy(
-      props.tokenName,
-      props.tokenSymbol,
-    );
+    const nftFactory = await NFTFactory.deploy(tokenName, tokenSymbol);
     await nftFactory.deployed();
 
     const transactionReceipt = await nftFactory.deployTransaction.wait();
@@ -61,6 +48,8 @@ export class ContractService {
     this.logger.verbose('CONTRACT CREATION FINISHED');
     this.logger.debug('Contract deployed to address:', contractAddress);
 
+    const url = `${CONTRACT_ADRRESS_EXPLORER_URLS[networkName]}/${contractAddress}`;
+
     const response = {
       networkName,
       contractAddress,
@@ -70,6 +59,7 @@ export class ContractService {
       transactionHash,
       blockHash,
       blockNumber,
+      url,
     };
 
     this.eventEmitter.emit('verifyContract', {

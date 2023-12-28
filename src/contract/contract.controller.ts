@@ -1,17 +1,13 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ContractService, DeployedContractProps } from './contract.service';
 import { CONTRACT_ADRRESS_EXPLORER_URLS } from '../networks';
-import { DeployContractDto } from './DeployContract.dto';
+import { DeployContractDto } from './dto/deploy-contract-request.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-
-export interface DeployedContractControllerProps {
-  response: DeployedContractProps;
-  url: string;
-}
+import { DeployContractResponseDto } from './dto/deploy-contract-response.dto';
 
 @ApiTags('Deploy Contract')
 @ApiCreatedResponse({
@@ -27,14 +23,11 @@ export class ContractController {
   @Post('deploy')
   async deploy(
     @Body() deployContractDto: DeployContractDto,
-  ): Promise<DeployedContractControllerProps> {
+  ): Promise<DeployContractResponseDto> {
     const response = await this.contractService.deployContract(
       deployContractDto,
     );
 
-    const url = `${
-      CONTRACT_ADRRESS_EXPLORER_URLS[deployContractDto.networkName]
-    }/${response.contractAddress}`;
-    return { response, url };
+    return response;
   }
 }
